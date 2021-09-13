@@ -12,6 +12,8 @@
 #include <utility>
 #include <algorithm>
 
+#include <SDL2/SDL.h>
+
 #define PI 3.14159
 
 #ifndef GEOMETRY_H
@@ -20,32 +22,33 @@
 namespace Geometry {
 
     template <class NumberType>
-    class Vector;
+    class Vector2d;
 
     // Point class
     /* -------------------------------------------------------------------------------------------- */
     /** Simple class to hold a 2D Point */
     template <class NumberType>
-    class Point {
+    class Point2d {
 
         public:
             NumberType x;
             NumberType y;
-            Point(NumberType _x = 0, NumberType _y = 0): x(_x), y(_y) {}
-            Point<NumberType>& operator+=(Vector<NumberType> const &);
-            Point<NumberType>& operator-=(Vector<NumberType> const &);
+            Point2d(NumberType _x = 0, NumberType _y = 0): x(_x), y(_y) {}
+            Point2d(const Point2d<NumberType> &otherPoint): x(otherPoint.x), y(otherPoint.y) {}
+            Point2d<NumberType>& operator+=(Vector2d<NumberType> const &);
+            Point2d<NumberType>& operator-=(Vector2d<NumberType> const &);
 
     };
 
     // Comparison
     /* ----------------- */
     template <class NumberType>
-    bool operator==(Point<NumberType> const &p1, Point<NumberType> const &p2) {
+    bool operator==(Point2d<NumberType> const &p1, Point2d<NumberType> const &p2) {
         return (p1.x == p2.x && p1.y == p2.y);
     }
 
     template <class NumberType>
-    bool operator!=(Point<NumberType> const &p1, Point<NumberType> const &p2) {
+    bool operator!=(Point2d<NumberType> const &p1, Point2d<NumberType> const &p2) {
         return !(p1 == p2);
     }
     /* ----------------- */
@@ -54,7 +57,7 @@ namespace Geometry {
     // Displaying
     /* ----------------- */
     template <class NumberType>
-    std::ostream& operator<<(std::ostream& os, const Point<NumberType> p) {
+    std::ostream& operator<<(std::ostream& os, const Point2d<NumberType> p) {
         os << "P(" << p.x << ", " << p.y << ")";
         return os;
     }
@@ -63,38 +66,41 @@ namespace Geometry {
     // Adding vector to points
     /* ----------------- */
     template <class NumberType>
-    Point<NumberType>& Point<NumberType>::operator+=(Vector<NumberType> const &v) {
+    Point2d<NumberType>& Point2d<NumberType>::operator+=(Vector2d<NumberType> const &v) {
         x += v.x;
         y += v.y;
         return *this;
     }
 
     template <class NumberType>
-    Point<NumberType>& Point<NumberType>::operator-=(Vector<NumberType> const &v) {
+    Point2d<NumberType>& Point2d<NumberType>::operator-=(Vector2d<NumberType> const &v) {
         x -= v.x;
         y -= v.y;
         return *this;
     }
     /* ----------------- */
     /* -------------------------------------------------------------------------------------------- */
+    template <class NumberType>
+    using Line2d = std::pair<Point2d<NumberType>, Point2d<NumberType> >;
 
-    // Point class
+    // Vector class
     /* -------------------------------------------------------------------------------------------- */
     /** Simple class to hold a 2D Vector */
     template <class NumberType>
-    class Vector {
+    class Vector2d {
 
         public:
             NumberType x;
             NumberType y;
-            Vector(NumberType _x = 0, NumberType _y = 0): x(_x), y(_y) {}
+            Vector2d(NumberType _x = 0, NumberType _y = 0): x(_x), y(_y) {}
+            Vector2d(const Vector2d<NumberType> &otherVector): x(otherVector.x), y(otherVector.y) {}
 
-            Vector<NumberType>& operator+=(Vector<NumberType> const &);
-            Vector<NumberType>& operator-=(Vector<NumberType> const &);
-            Vector<NumberType>& operator*=(Vector<NumberType> const &);
-            Vector<NumberType>& operator/=(Vector<NumberType> const &);
-            Vector<NumberType>& operator*=(NumberType const &scalar);
-            Vector<NumberType>& operator/=(NumberType const &scalar);
+            Vector2d<NumberType>& operator+=(Vector2d<NumberType> const &);
+            Vector2d<NumberType>& operator-=(Vector2d<NumberType> const &);
+            Vector2d<NumberType>& operator*=(Vector2d<NumberType> const &);
+            Vector2d<NumberType>& operator/=(Vector2d<NumberType> const &);
+            Vector2d<NumberType>& operator*=(NumberType const &scalar);
+            Vector2d<NumberType>& operator/=(NumberType const &scalar);
 
             NumberType euclidianNorm() const;
 
@@ -103,28 +109,28 @@ namespace Geometry {
     // In-place operations with vector
     /* ----------------- */
     template <class NumberType>
-    Vector<NumberType>& Vector<NumberType>::operator+=(Vector<NumberType> const &v2) {
+    Vector2d<NumberType>& Vector2d<NumberType>::operator+=(Vector2d<NumberType> const &v2) {
         x += v2.x;
         y += v2.y;
         return *this;
     }
 
     template <class NumberType>
-    Vector<NumberType>& Vector<NumberType>::operator-=(Vector<NumberType> const &v2) {
+    Vector2d<NumberType>& Vector2d<NumberType>::operator-=(Vector2d<NumberType> const &v2) {
         x -= v2.x;
         y -= v2.y;
         return *this;
     }
 
     template <class NumberType>
-    Vector<NumberType>& Vector<NumberType>::operator*=(Vector<NumberType> const &v2) {
+    Vector2d<NumberType>& Vector2d<NumberType>::operator*=(Vector2d<NumberType> const &v2) {
         x *= v2.x;
         y *= v2.y;
         return *this;
     }
 
     template <class NumberType>
-    Vector<NumberType>& Vector<NumberType>::operator/=(Vector<NumberType> const &v2) {
+    Vector2d<NumberType>& Vector2d<NumberType>::operator/=(Vector2d<NumberType> const &v2) {
         x /= v2.x;
         y /= v2.y;
         return *this;
@@ -134,70 +140,70 @@ namespace Geometry {
     // In-place operations with scalar
     /* ----------------- */
     template <class NumberType>
-    Vector<NumberType>& Vector<NumberType>::operator*=(NumberType const &scalar) {
+    Vector2d<NumberType>& Vector2d<NumberType>::operator*=(NumberType const &scalar) {
         x *= scalar;
         y *= scalar;
         return *this;
     }
 
     template <class NumberType>
-    Vector<NumberType>& Vector<NumberType>::operator/=(NumberType const &scalar) {
+    Vector2d<NumberType>& Vector2d<NumberType>::operator/=(NumberType const &scalar) {
         x /= scalar;
         y /= scalar;
         return *this;
     }
 
     template <class NumberType>
-    Vector<NumberType> operator*(Vector<NumberType> const &v1, NumberType const &scalar) {
-        return Vector<NumberType>(v1.x * scalar, v1.y * scalar);
+    Vector2d<NumberType> operator*(Vector2d<NumberType> const &v1, NumberType const &scalar) {
+        return Vector2d<NumberType>(v1.x * scalar, v1.y * scalar);
     }
 
     template <class NumberType>
-    Vector<NumberType> operator/(Vector<NumberType> const &v1, NumberType const &scalar) {
-        return Vector<NumberType>(v1.x / scalar, v1.y / scalar);
+    Vector2d<NumberType> operator/(Vector2d<NumberType> const &v1, NumberType const &scalar) {
+        return Vector2d<NumberType>(v1.x / scalar, v1.y / scalar);
     }
     /* ----------------- */
 
     // Binary operations
     /* ----------------- */
     template <class NumberType>
-    Vector<NumberType> operator+(Vector<NumberType> const &v1, Vector<NumberType> const &v2) {
-        return Vector<NumberType>(v1.x + v2.x, v1.y + v2.y);
+    Vector2d<NumberType> operator+(Vector2d<NumberType> const &v1, Vector2d<NumberType> const &v2) {
+        return Vector2d<NumberType>(v1.x + v2.x, v1.y + v2.y);
     }
 
     template <class NumberType>
-    Vector<NumberType> operator-(Vector<NumberType> const &v1, Vector<NumberType> const &v2) {
-        return Vector<NumberType>(v1.x - v2.x, v1.y - v2.y);
+    Vector2d<NumberType> operator-(Vector2d<NumberType> const &v1, Vector2d<NumberType> const &v2) {
+        return Vector2d<NumberType>(v1.x - v2.x, v1.y - v2.y);
     }
 
     template <class NumberType>
-    Vector<NumberType> operator*(Vector<NumberType> const &v1, Vector<NumberType> const &v2) {
-        return Vector<NumberType>(v1.x * v2.x, v1.y * v2.y);
+    Vector2d<NumberType> operator*(Vector2d<NumberType> const &v1, Vector2d<NumberType> const &v2) {
+        return Vector2d<NumberType>(v1.x * v2.x, v1.y * v2.y);
     }
 
     template <class NumberType>
-    Vector<NumberType> operator/(Vector<NumberType> const &v1, Vector<NumberType> const &v2) {
-        return Vector<NumberType>(v1.x / v2.x, v1.y / v2.y);
+    Vector2d<NumberType> operator/(Vector2d<NumberType> const &v1, Vector2d<NumberType> const &v2) {
+        return Vector2d<NumberType>(v1.x / v2.x, v1.y / v2.y);
     }
     /* ----------------- */
 
     // Unary minus (-)
     /* ----------------- */
     template <class NumberType>
-    Vector<NumberType> operator-(Vector<NumberType> const &v) {
-        return Vector<NumberType>(-v.x, -v.y);
+    Vector2d<NumberType> operator-(Vector2d<NumberType> const &v) {
+        return Vector2d<NumberType>(-v.x, -v.y);
     }
     /* ----------------- */
 
     // Comparison
     /* ----------------- */
     template <class NumberType>
-    bool operator==(Vector<NumberType> const &v1, Vector<NumberType> const &v2) {
+    bool operator==(Vector2d<NumberType> const &v1, Vector2d<NumberType> const &v2) {
         return (v1.x == v2.x && v1.y == v2.y);
     }
 
     template <class NumberType>
-    bool operator!=(Vector<NumberType> const &v1, Vector<NumberType> const &v2) {
+    bool operator!=(Vector2d<NumberType> const &v1, Vector2d<NumberType> const &v2) {
         return !(v1 == v2);
     }
     /* ----------------- */
@@ -205,7 +211,7 @@ namespace Geometry {
     // Displaying vector
     /* ----------------- */
     template <class NumberType>
-    std::ostream& operator<<(std::ostream& os, const Vector<NumberType> p) {
+    std::ostream& operator<<(std::ostream& os, const Vector2d<NumberType> p) {
         os << "V(" << p.x << ", " << p.y << ")";
         return os;
     }
@@ -214,17 +220,17 @@ namespace Geometry {
     // Useful functions
     /* ----------------- */
     template <class NumberType>
-    NumberType Vector<NumberType>::euclidianNorm() const {
+    NumberType Vector2d<NumberType>::euclidianNorm() const {
         return sqrt(pow(x, 2) + pow(y, 2));
     }
 
     template <class NumberType>
-    NumberType DotProduct(const Vector<NumberType> &a, const Vector<NumberType> &b) {
+    NumberType DotProduct(const Vector2d<NumberType> &a, const Vector2d<NumberType> &b) {
         return ((a.x * b.x) + (a.y * b.y));
     }
 
     template <class NumberType>
-    NumberType CrossProduct(const Vector<NumberType> &a, const Vector<NumberType> &b) {
+    NumberType CrossProduct(const Vector2d<NumberType> &a, const Vector2d<NumberType> &b) {
         return ((a.x * b.y) - (a.y * b.x));
     }
     /* ----------------- */
@@ -236,11 +242,12 @@ namespace Geometry {
     class Polygon {
 
         public:
-            std::vector<Point<NumberType> > vertices; // Must be at least 3 vertices
-            Point<NumberType> midPoint;
-            std::vector<std::pair<Point<NumberType>, Point<NumberType> > > sides;
-            std::vector<std::pair<Point<NumberType>, Point<NumberType> > > diagonals;
+            std::vector<Point2d<NumberType> > vertices; // Must be at least 3 vertices
+            Point2d<NumberType> midPoint;
+            std::vector<std::pair<Point2d<NumberType>, Point2d<NumberType> > > sides;
+            std::vector<std::pair<Point2d<NumberType>, Point2d<NumberType> > > diagonals;
             Polygon() {}
+            Polygon(const Polygon<NumberType> &otherPolygon): vertices(otherPolygon.vertices) {}
             bool checkValidity();
             void computeMidPoint();
             void computeSidesAndDiagonals();
@@ -277,7 +284,7 @@ namespace Geometry {
         midPoint.y = minY + (maxY - minY) / 2;
 
         // Sort the vertices in clockwise order so that we can join them and create sides
-        std::sort(vertices.begin(), vertices.end(), [&](Point<NumberType> p1, Point<NumberType> p2) {
+        std::sort(vertices.begin(), vertices.end(), [&](Point2d<NumberType> p1, Point2d<NumberType> p2) {
             return ((p1.x - midPoint.x) * (p2.y - midPoint.y) - (p2.x - midPoint.x) * (p1.y - midPoint.y) > 0);
         });
 
@@ -286,15 +293,17 @@ namespace Geometry {
     // Always call computeMidPoint before this method
     template <class NumberType>
     void Polygon<NumberType>::computeSidesAndDiagonals() {
+        sides.clear();
+        diagonals.clear();
         for(int index = 0; index < vertices.size(); index++) {
-            sides.push_back(std::make_pair(vertices[index], vertices[(index+1)%vertices.size()]));
-            diagonals.push_back(std::make_pair(midPoint, vertices[(index+1)%vertices.size()]));
+          sides.push_back(std::make_pair(vertices[index], vertices[(index+1)%vertices.size()]));
+          diagonals.push_back(std::make_pair(midPoint, vertices[(index+1)%vertices.size()]));
         }
     }
     /* ----------------- */
 
     template <class NumberType>
-    std::pair<bool, Point<NumberType>* > checkLineCollision(std::pair<Point<NumberType>, Point<NumberType> > line1, std::pair<Point<NumberType>, Point<NumberType> > line2) {
+    std::pair<bool, Point2d<NumberType>* > checkLineCollision(Line2d<NumberType> line1, Line2d<NumberType> line2) {
 
         /*
         The algorithm consits of 3 steps
@@ -330,7 +339,7 @@ namespace Geometry {
         int line2maxX = std::max(line2.first.x, line2.second.x);
 
         if(line1minX <= intersectionX && intersectionX <= line1maxX && line2minX <= intersectionX && intersectionX <= line2maxX) {
-            return std::make_pair(true, new Point<NumberType>(intersectionX, slope1 * intersectionX + offset1));
+            return std::make_pair(true, new Point2d<NumberType>(intersectionX, slope1 * intersectionX + offset1));
         }
 
         return std::make_pair(false, nullptr);
@@ -338,11 +347,11 @@ namespace Geometry {
     }
 
     template <class NumberType>
-    std::pair<bool, Point<NumberType>* > checkPolygonCollision(Polygon<NumberType> polygon1, Polygon<NumberType> polygon2) {
-
+    std::pair<bool, Point2d<NumberType>* > checkPolygonCollision(Polygon<NumberType> &polygon1, Polygon<NumberType> &polygon2) {
+      
         for(auto side: polygon1.sides) {
             for(auto diagonal: polygon2.diagonals) {
-                std::pair<bool, Point<NumberType>* > result = checkLineCollision(side, diagonal);
+                std::pair<bool, Point2d<NumberType>* > result = checkLineCollision(side, diagonal);
                 if(result.first) {
                     return result;
                 }
@@ -351,7 +360,7 @@ namespace Geometry {
 
         for(auto side: polygon2.sides) {
             for(auto diagonal: polygon1.diagonals) {
-                std::pair<bool, Point<NumberType>* > result = checkLineCollision(side, diagonal);
+                std::pair<bool, Point2d<NumberType>* > result = checkLineCollision(side, diagonal);
                 if(result.first) {
                     return result;
                 }
