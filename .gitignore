@@ -1,1 +1,6 @@
 token.txt
+
+*.DLL
+*.dll
+*.EXE
+*.exe
