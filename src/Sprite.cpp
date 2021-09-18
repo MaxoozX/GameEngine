@@ -14,14 +14,12 @@
 
 using namespace Geometry;
 
-Sprite::Sprite(float x, float y, int width, int height, const char texturePath[], const char shapePath[], SDL_Renderer* renderer): m_x(x), m_y(y), m_width(width), m_height(height), m_renderer(renderer) {
-      
-      m_rect.x = x;
-      m_rect.y = y;
+Sprite::Sprite(float x, float y, int width, int height, SDL_Renderer* renderer, int pixelSize): m_x(x), m_y(y), m_width(width), m_height(height), m_renderer(renderer), m_pixelSize(pixelSize) {
+
+      m_rect.x = x - width/2;
+      m_rect.y = y - height/2;
       m_rect.w = width;
       m_rect.h = height;
-      
-      loadPolygons(shapePath);
       
     }
 
@@ -38,10 +36,12 @@ Sprite::~Sprite() = default;
 
 void Sprite::loadPolygons(const char path[]) {
   
-  shapePolygon = getPolygonFromPNG<float>(path);
-  
+  shapePolygon = getPolygonFromPNG<int>(path);
+
+  shapePolygon.computeMidPoint();
+
   // Scale the polygon
-  scaledPolygon = Polygon<float>(shapePolygon);
+  scaledPolygon = Polygon<int>(shapePolygon);
   
   double scaleFactorX = m_width / shapePolygon.m_w;
   double scaleFactorY = m_height / shapePolygon.m_h;
@@ -54,17 +54,21 @@ void Sprite::loadPolygons(const char path[]) {
   scaledPolygon.m_w = m_width;
   scaledPolygon.m_h = m_height;
   
+  double deltaX = m_x - m_width / 2 + m_pixelSize / 2;
+  double deltaY = m_y - m_height / 2 + m_pixelSize / 2;
+
+  positionDisplayPolygon(deltaX, deltaY);
+
+}
+
+void Sprite::positionDisplayPolygon(int deltaX, int deltaY) {
   // Position the polygon
-  displayPolygon = Polygon<float>(scaledPolygon);
+  displayPolygon = Polygon<int>(scaledPolygon);
   
-  double deltaX = m_x - m_width / 2;
-  double deltaY = m_y - m_height / 2;
-  
-  for(auto &vertex : scaledPolygon.vertices) {
+  for(auto &vertex : displayPolygon.vertices) {
     vertex.x += deltaX;
     vertex.y += deltaY;
   }
-  
 }
 
 void Sprite::loadTexture(const char path[]) {
@@ -72,4 +76,13 @@ void Sprite::loadTexture(const char path[]) {
   if (m_texture == nullptr) {
     SDL_Log("Problem loading sprite texture : %s", IMG_GetError());
   }
+}
+
+void Sprite::load(const char shapePath[], const char texturePath[]) {
+  loadPolygons(shapePath);
+  loadTexture(texturePath);
+}
+
+void Sprite::setRenderer(SDL_Renderer* newRenderer) {
+    m_renderer = newRenderer;
 }

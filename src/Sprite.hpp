@@ -24,19 +24,26 @@ class Sprite {
     float m_y;
     int m_width;
     int m_height;
+    int m_pixelSize;
     SDL_Rect m_rect;
-    Geometry::Polygon<float> shapePolygon, scaledPolygon, displayPolygon;
+    Geometry::Polygon<int> shapePolygon, scaledPolygon, displayPolygon;
     SDL_Texture* m_texture;
     SDL_Renderer* m_renderer;
     
     // Methods
-    Sprite(float = 0, float = 0, int = 0, int = 0, const char[] = nullptr, const char[] = nullptr, SDL_Renderer* = nullptr);
+    Sprite(float = 0, float = 0, int = 0, int = 0, SDL_Renderer* = nullptr, int = 0);
     Sprite(const Sprite &);
     ~Sprite();
     
     void loadPolygons(const char[]);
     
     void loadTexture(const char[]);
+
+    void load(const char[], const char[]);
+
+    void positionDisplayPolygon(int = 0, int = 0);
+
+    void setRenderer(SDL_Renderer*);
     
 };
 

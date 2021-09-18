@@ -264,6 +264,32 @@ namespace Geometry {
     }
 
     template <class NumberType>
+    bool lessClockwise(Point2d<NumberType> a, Point2d<NumberType> b, Point2d<NumberType> center) {
+        if (a.x - center.x >= 0 && b.x - center.x < 0)
+            return true;
+        if (a.x - center.x < 0 && b.x - center.x >= 0)
+            return false;
+        if (a.x - center.x == 0 && b.x - center.x == 0) {
+            if (a.y - center.y >= 0 || b.y - center.y >= 0)
+                return a.y > b.y;
+            return b.y > a.y;
+        }
+
+        // compute the cross product of vectors (center -> a) x (center -> b)
+        int det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
+        if (det < 0)
+            return true;
+        if (det > 0)
+            return false;
+
+        // points a and b are on the same line from the center
+        // check which point is closer to the center
+        int d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
+        int d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+        return d1 > d2;
+    }
+
+    template <class NumberType>
     void Polygon<NumberType>::computeMidPoint() {
 
         NumberType minX, maxX, minY, maxY, curX, curY;
@@ -287,8 +313,8 @@ namespace Geometry {
         midPoint.y = minY + (maxY - minY) / 2;
 
         // Sort the vertices in clockwise order so that we can join them and create sides
-        std::sort(vertices.begin(), vertices.end(), [&](Point2d<NumberType> p1, Point2d<NumberType> p2) {
-            return ((p1.x - midPoint.x) * (p2.y - midPoint.y) - (p2.x - midPoint.x) * (p1.y - midPoint.y) > 0);
+        std::sort(vertices.begin(), vertices.end(), [&](Point2d<NumberType> &p1, Point2d<NumberType> &p2) {
+            return lessClockwise<NumberType>(p1, p2, midPoint);
         });
 
     }
@@ -373,30 +399,32 @@ namespace Geometry {
         return std::make_pair(false, nullptr);
 
     }
-}
 
-using namespace Geometry;
-
-template <class NumberType>
-Polygon<NumberType> getPolygonFromPNG(const char path[]) {
-    SDL_Surface *surface = IMG_Load(path);
-    int *pixels = (int*)surface->pixels;
-    Polygon<NumberType> polygon;
-    polygon.m_w = surface->w;
-    polygon.m_h = surface->h;
-    for(int row = 0; row < surface->h; row++) {
-        for(int column = 0; column < surface->w; column++) {
-            int pixel = pixels[row*surface->w+column];
-            int alpha = (pixel >> 24) & 0xFF;
-            int red = (pixel >> 16) & 0xFF;
-            int green = (pixel >> 8) & 0xFF;
-            int blue = pixel & 0xFF;
-            if(alpha > 0) {
-                polygon.vertices.push_back(Point2d<NumberType>(column, row));
+    template <class NumberType>
+    Polygon<NumberType> getPolygonFromPNG(const char path[]) {
+        Polygon<NumberType> polygon;
+        SDL_Surface *surface = IMG_Load(path);
+        if(surface == nullptr) {
+            SDL_Log("Impossible to load the image");
+            return polygon;
+        }
+        int *pixels = (int*)surface->pixels;
+        polygon.m_w = surface->w;
+        polygon.m_h = surface->h;
+        for(int row = 0; row < surface->h; row++) {
+            for(int column = 0; column < surface->w; column++) {
+                int pixel = pixels[row*surface->w+column];
+                int alpha = (pixel >> 24) & 0xFF;
+                int red = (pixel >> 16) & 0xFF;
+                int green = (pixel >> 8) & 0xFF;
+                int blue = pixel & 0xFF;
+                if(alpha > 0) {
+                    polygon.vertices.push_back(Point2d<NumberType>(column, row));
+                }
             }
         }
+        return polygon;
     }
-    return polygon;
 }
 
 #endif // GEOMETRY_H
