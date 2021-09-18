@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #define PI 3.14159
 
@@ -242,15 +243,17 @@ namespace Geometry {
     class Polygon {
 
         public:
-            std::vector<Point2d<NumberType> > vertices; // Must be at least 3 vertices
-            Point2d<NumberType> midPoint;
-            std::vector<std::pair<Point2d<NumberType>, Point2d<NumberType> > > sides;
-            std::vector<std::pair<Point2d<NumberType>, Point2d<NumberType> > > diagonals;
-            Polygon() {}
-            Polygon(const Polygon<NumberType> &otherPolygon): vertices(otherPolygon.vertices) {}
-            bool checkValidity();
-            void computeMidPoint();
-            void computeSidesAndDiagonals();
+          int m_w;
+          int m_h;
+          std::vector<Point2d<NumberType> > vertices; // Must be at least 3 vertices
+          Point2d<NumberType> midPoint;
+          std::vector<std::pair<Point2d<NumberType>, Point2d<NumberType> > > sides;
+          std::vector<std::pair<Point2d<NumberType>, Point2d<NumberType> > > diagonals;
+          Polygon() {}
+          Polygon(const Polygon<NumberType> &otherPolygon): vertices(otherPolygon.vertices), sides(otherPolygon.sides), m_w(otherPolygon.m_w), m_h(otherPolygon.m_h) {}
+          bool checkValidity();
+          void computeMidPoint();
+          void computeSidesAndDiagonals();
     };
 
     // Useful functions
@@ -371,4 +374,29 @@ namespace Geometry {
 
     }
 }
+
+using namespace Geometry;
+
+template <class NumberType>
+Polygon<NumberType> getPolygonFromPNG(const char path[]) {
+    SDL_Surface *surface = IMG_Load(path);
+    int *pixels = (int*)surface->pixels;
+    Polygon<NumberType> polygon;
+    polygon.m_w = surface->w;
+    polygon.m_h = surface->h;
+    for(int row = 0; row < surface->h; row++) {
+        for(int column = 0; column < surface->w; column++) {
+            int pixel = pixels[row*surface->w+column];
+            int alpha = (pixel >> 24) & 0xFF;
+            int red = (pixel >> 16) & 0xFF;
+            int green = (pixel >> 8) & 0xFF;
+            int blue = pixel & 0xFF;
+            if(alpha > 0) {
+                polygon.vertices.push_back(Point2d<NumberType>(column, row));
+            }
+        }
+    }
+    return polygon;
+}
+
 #endif // GEOMETRY_H

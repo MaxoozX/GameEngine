@@ -16,25 +16,6 @@
 using namespace std;
 using namespace Geometry;
 
-Polygon<int> getPolygonFromPNG(const char path[]) {
-    SDL_Surface *surface = IMG_Load(path);
-    int *pixels = (int*)surface->pixels;
-    Polygon<int> polygon;
-    for(int row = 0; row < surface->h; row++) {
-        for(int column = 0; column < surface->w; column++) {
-            int pixel = pixels[row*surface->w+column];
-            int alpha = (pixel >> 24) & 0xFF;
-            int red = (pixel >> 16) & 0xFF;
-            int green = (pixel >> 8) & 0xFF;
-            int blue = pixel & 0xFF;
-            if(alpha > 0) {
-                polygon.vertices.push_back(Point2d<int>(column, row));
-            }
-        }
-    }
-    return polygon;
-}
-
 void drawPolygon(SDL_Renderer* renderer, Polygon<int>& poly) {
     for(auto side: poly.sides) {
         SDL_RenderDrawLine(renderer, side.first.x, side.first.y, side.second.x, side.second.y);
@@ -82,47 +63,12 @@ int main(int argc, char **argv) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
-    Polygon<int> polygon = getPolygonFromPNG("../assets/collision-points.png");
-    Polygon<int> polygon2 = getPolygonFromPNG("../assets/collision-points2.png");
+    Polygon<int> polygon = getPolygonFromPNG<int>("../assets/collision-points.png");
+    Polygon<int> polygon2 = getPolygonFromPNG<int>("../assets/collision-points2.png");
 
     int curPosX = 20;
     int curPosY = 15;
     int coef = 10;
-
-    // Creating the actual polygons that'll be used
-    /*--------------*/
-    Polygon<int> polygonResized(polygon);
-    Polygon<int> polygonResized2(polygon2);
-
-    for(auto& vertex: polygonResized.vertices) {
-        vertex.x *= coef;
-        vertex.y *= coef;
-    }
-
-    for(auto& vertex: polygonResized2.vertices) {
-        vertex.x *= coef;
-        vertex.y *= coef;
-    }
-    
-    Polygon<int> polygonDisplay(polygonResized);
-    Polygon<int> polygonDisplay2(polygonResized2);
-    
-    for(auto& vertex: polygonDisplay.vertices) {
-        vertex.x += curPosX;
-        vertex.y += curPosY;
-    }
-    
-    if(polygonDisplay2.checkValidity()) {
-      polygonDisplay2.computeMidPoint();
-      polygonDisplay2.computeSidesAndDiagonals();
-      drawPolygon(renderer, polygonDisplay2);
-    }
-    /*--------------*/
-
-    // Computing the values and checking for collision
-    /*--------------*/
-    computePosAndCollision(renderer, polygonDisplay, polygonDisplay2);
-    /*--------------*/
     
     SDL_Event event;
     bool quit = false;
@@ -188,7 +134,7 @@ int main(int argc, char **argv) {
                 case SDLK_RIGHT:
                   rightPressed = false;
                   break;
-      
+                
                 default:
                   break;
               }
@@ -239,3 +185,5 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+// use SDL_RenderCopyEx
