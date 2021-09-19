@@ -20,8 +20,7 @@ class Sprite {
   */
   
   public:
-    float m_x;
-    float m_y;
+    Geometry::Point2d<double> center;
     int m_width;
     int m_height;
     int m_pixelSize;
@@ -44,6 +43,12 @@ class Sprite {
     void positionDisplayPolygon(int = 0, int = 0);
 
     void setRenderer(SDL_Renderer*);
+
+    void setTexture(SDL_Texture*);
+
+    void setScaledPolygon(Geometry::Polygon<int> &);
+
+    static bool doesRectanglesCollide(SDL_Rect &rect1, SDL_Rect &rect2);
     
 };
 

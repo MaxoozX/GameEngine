@@ -41,7 +41,9 @@
         "xlocnum": "cpp",
         "xmemory": "cpp",
         "xstddef": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "ctime": "cpp",
+        "random": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

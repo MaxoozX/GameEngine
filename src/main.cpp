@@ -17,7 +17,7 @@ using namespace std;
 
 int main(int argc, char **argv) {
 
-  SpaceShooter game(650, 1000, 30);
+  SpaceShooter game(650, 1000, 60);
   game.setup();
   game.start();
   game.destroy();
@@ -26,10 +26,7 @@ int main(int argc, char **argv) {
 }
 
 /*
-- Create the missile class
-- Implement throwing missiles
-- Create the enemty ship class
-- Create a spawning function
-- Put everything into a big vector for actualization
+- Add a score counter
+- Add some sort of super attack
 - Add sounds with SDL_Mixer
 */

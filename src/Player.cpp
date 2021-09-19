@@ -12,7 +12,7 @@
 
 #define LATERAL_SPEED 8
 
-Player::Player(SDL_Renderer* renderer,int windowWidth, int windowHeight): Sprite::Sprite(325, 800, 160, 160, renderer, 10), m_windowWidth(windowWidth), m_windowHeight(windowHeight) {
+Player::Player(SDL_Renderer* renderer,int windowWidth, int windowHeight): Sprite::Sprite(325, 900, 160, 160, renderer, 10), m_windowWidth(windowWidth), m_windowHeight(windowHeight), m_health(100), maxHealth(100) {
     minPosX = m_width / 2;
     maxPosX = m_windowWidth - m_width / 2;
 }
@@ -22,25 +22,43 @@ void Player::load() {
 }
 
 void Player::left() {
-    m_x -= LATERAL_SPEED;
-    if(m_x < minPosX) {
-        m_x = minPosX;
+    center.x -= LATERAL_SPEED;
+    if(center.x < minPosX) {
+        center.x = minPosX;
     }
 }
 
 void Player::right() {
-    m_x += LATERAL_SPEED;
-    if(m_x > maxPosX) {
-        m_x = maxPosX;
+    center.x += LATERAL_SPEED;
+    if(center.x > maxPosX) {
+        center.x = maxPosX;
     }
 }
 
 void Player::updateRectAndPolygon() {
-    double deltaX = m_x - m_width / 2;
-    double deltaY = m_y - m_height / 2;
+    double deltaX = center.x - m_width / 2;
+    double deltaY = center.y - m_height / 2;
     int pixelDelta = m_pixelSize / 2;
 
     m_rect.x = deltaX;
     m_rect.y = deltaY;
     positionDisplayPolygon(deltaX + pixelDelta, deltaY + pixelDelta);
+}
+
+void Player::heal(int amount) {
+    m_health += amount;
+    if(m_health > maxHealth) {
+        m_health = maxHealth;
+    }
+}
+
+void Player::damage(int amount) {
+    m_health -= amount;
+    if(m_health < 0) {
+        m_health = 0;
+    }
+}
+
+int Player::getHealth() const {
+    return m_health;
 }

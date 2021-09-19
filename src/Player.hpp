@@ -18,6 +18,8 @@ class Player : public Sprite {
         int m_windowHeight;
         int minPosX;
         int maxPosX;
+        int m_health;
+        int maxHealth;
 
     public:
         Player(SDL_Renderer* = nullptr, int = 0, int = 0);
@@ -25,6 +27,9 @@ class Player : public Sprite {
         void left();
         void right();
         void updateRectAndPolygon();
+        void heal(int = 0);
+        void damage(int = 0);
+        int getHealth() const;
 };
 
 #endif // PLAYER_H

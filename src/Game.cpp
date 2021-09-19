@@ -5,6 +5,8 @@
  * @version 1.0
 */
 
+#include <random>
+
 #include <SDL2/SDL.h>
 
 #include "Game.hpp"
@@ -13,7 +15,8 @@ Game::Game(int windowWidth, int windowHeight, int frameRate):   window(nullptr),
                                                                 quit(false), ready(false),
                                                                 gameWindowWidth(windowWidth), gameWindowHeight(windowHeight),
                                                                 gameFrameRate(frameRate), timePerFrame(1000 / frameRate),
-                                                                lastTime(0), timeElapsed(0), timeToWait(0)
+                                                                lastTime(0), timeElapsed(0), timeToWait(0),
+                                                                mt(rd()), dist(0, 1000)
                                                                 {}
 
 void Game::setup() {
@@ -51,6 +54,8 @@ void Game::mainLoop() {
 
         timeElapsed = SDL_GetTicks() - lastTime; // In ms
         timeToWait = timePerFrame - timeElapsed;
+
+        SDL_Log("wait time : %d", timeToWait);
 
         if (timeToWait > 0) {
             SDL_Delay(timeToWait);

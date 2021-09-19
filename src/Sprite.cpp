@@ -14,7 +14,7 @@
 
 using namespace Geometry;
 
-Sprite::Sprite(float x, float y, int width, int height, SDL_Renderer* renderer, int pixelSize): m_x(x), m_y(y), m_width(width), m_height(height), m_renderer(renderer), m_pixelSize(pixelSize) {
+Sprite::Sprite(float x, float y, int width, int height, SDL_Renderer* renderer, int pixelSize): center(x, y), m_width(width), m_height(height), m_renderer(renderer), m_pixelSize(pixelSize) {
 
       m_rect.x = x - width/2;
       m_rect.y = y - height/2;
@@ -22,15 +22,6 @@ Sprite::Sprite(float x, float y, int width, int height, SDL_Renderer* renderer, 
       m_rect.h = height;
       
     }
-
-Sprite::Sprite(const Sprite &otherSprite): m_x(otherSprite.m_x), m_y(otherSprite.m_y), m_width(otherSprite.m_width), m_height(otherSprite.m_height) {
-  
-  m_rect.x = otherSprite.m_x;
-  m_rect.y = otherSprite.m_y;
-  m_rect.w = otherSprite.m_width;
-  m_rect.h = otherSprite.m_height;
-  
-}
 
 Sprite::~Sprite() = default;
 
@@ -54,8 +45,8 @@ void Sprite::loadPolygons(const char path[]) {
   scaledPolygon.m_w = m_width;
   scaledPolygon.m_h = m_height;
   
-  double deltaX = m_x - m_width / 2 + m_pixelSize / 2;
-  double deltaY = m_y - m_height / 2 + m_pixelSize / 2;
+  double deltaX = center.x - m_width / 2 + m_pixelSize / 2;
+  double deltaY = center.y - m_height / 2 + m_pixelSize / 2;
 
   positionDisplayPolygon(deltaX, deltaY);
 
@@ -85,4 +76,16 @@ void Sprite::load(const char shapePath[], const char texturePath[]) {
 
 void Sprite::setRenderer(SDL_Renderer* newRenderer) {
     m_renderer = newRenderer;
+}
+
+void Sprite::setTexture(SDL_Texture* newTexture) {
+  m_texture = newTexture;
+}
+
+void Sprite::setScaledPolygon(Geometry::Polygon<int> &poly) {
+  scaledPolygon = Polygon<int>(poly);
+}
+
+bool Sprite::doesRectanglesCollide(SDL_Rect &rect1, SDL_Rect &rect2) {
+  return (!(rect1.x + rect1.w < rect2.x || rect1.x > rect2.x + rect2.w || rect1.y + rect1.h < rect2.y || rect1.y > rect2.y + rect2.h ));
 }

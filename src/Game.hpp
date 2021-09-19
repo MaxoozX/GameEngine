@@ -8,12 +8,19 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <random>
+
 #include <SDL2/SDL.h>
 
 /** A boilerplate Game class made for inheritance */
 
 class Game {
     protected:
+
+        std::random_device rd;
+        std::mt19937 mt;
+        std::uniform_int_distribution<int> dist;
+
         SDL_Window* window;
         SDL_Renderer* m_renderer;
         SDL_Event event;
